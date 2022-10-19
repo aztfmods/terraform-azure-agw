@@ -13,7 +13,7 @@ locals {
 module "global" {
   source = "github.com/aztfmods/module-azurerm-global"
   rgs = {
-    network = {
+    agw = {
       name     = "rg-${local.naming.company}-netw-${local.naming.env}-${local.naming.region}"
       location = "westeurope"
     }
@@ -31,8 +31,8 @@ module "logging" {
 
   laws = {
     diags = {
-      location      = module.global.groups.network.location
-      resourcegroup = module.global.groups.network.name
+      location      = module.global.groups.agw.location
+      resourcegroup = module.global.groups.agw.name
       sku           = "PerGB2018"
       retention     = 30
     }
@@ -52,8 +52,8 @@ module "network" {
   vnets = {
     demo = {
       cidr          = ["10.0.0.0/16"]
-      location      = module.global.groups.network.location
-      resourcegroup = module.global.groups.network.name
+      location      = module.global.groups.agw.location
+      resourcegroup = module.global.groups.agw.name
     }
   }
   depends_on = [module.global]
