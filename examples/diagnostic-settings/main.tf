@@ -52,8 +52,8 @@ module "network" {
   vnets = {
     demo = {
       cidr          = ["10.0.0.0/16"]
-      location      = module.global.groups.agw.location
-      resourcegroup = module.global.groups.agw.name
+      location      = module.global.groups.network.location
+      resourcegroup = module.global.groups.network.name
     }
   }
   depends_on = [module.global]
