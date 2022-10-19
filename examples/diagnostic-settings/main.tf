@@ -40,6 +40,26 @@ module "logging" {
   depends_on = [module.global]
 }
 
+module "network" {
+  source = "github.com/aztfmods/module-azurerm-vnet"
+
+  naming = {
+    company = local.naming.company
+    env     = local.naming.env
+    region  = local.naming.region
+  }
+
+  vnets = {
+    demo = {
+      cidr          = ["10.0.0.0/16"]
+      location      = module.global.groups.agw.location
+      resourcegroup = module.global.groups.agw.name
+    }
+  }
+  depends_on = [module.global]
+}
+
+
 module "agw" {
   source = "../../"
 
