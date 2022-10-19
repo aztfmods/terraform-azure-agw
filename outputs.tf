@@ -3,5 +3,5 @@ output "agw" {
 }
 
 output "merged_ids" {
-  value = join(", ", [azurerm_public_ip.pip.id, azurerm_key_vault.kv.id, azurerm_application_gateway.application_gateway.id])
+  value = azurerm_application_gateway.application_gateway.id
 }
