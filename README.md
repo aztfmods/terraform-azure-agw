@@ -24,7 +24,61 @@ A last key goal is to separate logic from configuration in the module, thereby e
 
 The below examples shows the usage when consuming the module:
 
-## Usage: selfsigned certificate
+## Usage: selfsigned certificate and custom waf rules
+
+```hcl
+module "agw" {
+  source = "../../"
+
+  workload    = var.workload
+  environment = var.environment
+
+  agw = {
+    location      = module.rg.groups.demo.location
+    resourcegroup = module.rg.groups.demo.name
+    keyvault      = module.kv.vault.id
+    subnet        = module.network.subnets.agw.id
+    config        = var.agw.config
+    applications  = var.agw.applications
+  }
+}
+```
+
+The above configuration is referencing a tfvars file, where additional customization and more detailed configurations can be included.
+
+```hcl
+agw = {
+  config = {
+    waf = {
+      enable = true
+      mode   = "Prevention"
+    }
+    capacity = {
+      min = 1, max = 2
+    }
+  }
+
+  applications = {
+    # application app1
+    app1 = {
+      hostname  = "app1.com"
+      bepoolips = []
+      priority  = "10000"
+      subject   = "cn=app1.pilot.org"
+      issuer    = "self"
+    }
+    # application app2
+    app2 = {
+      hostname  = "app2.com"
+      bepoolips = []
+      priority  = "20000"
+      subject   = "cn=app2.pilot.org"
+      issuer    = "self"
+    }
+  }
+}
+```
+
 
 ## Usage: single agw multiple applications integrated CA
 
