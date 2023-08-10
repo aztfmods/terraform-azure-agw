@@ -1,6 +1,8 @@
 # Application Gateway
 
-This Terraform module streamlines the creation and management of azure application gateway resources, offering tailored options for routing, ssl termination, load balancing, and web application firewall configurations. By encapsulating these complex functionalities into easy-to-use settings, this module enables rapid and reliable deployment, all managed through code.
+This Terraform module streamlines the creation and management of azure application gateway resources, offering tailored options for routing, ssl termination, load balancing, and web application firewall configurations.
+
+By encapsulating these complex functionalities into easy-to-use settings, this module enables rapid and reliable deployment, all managed through code.
 
 ## Goals
 
