@@ -55,26 +55,81 @@ agw = {
     capacity = {
       min = 1, max = 2
     }
+    custom_rules = {
+      rule1 = {
+        priority  = "100"
+        rule_type = "MatchRule"
+        action    = "Allow"
+        conditions = {
+          condition1 = {
+            variable_name      = "RemoteAddr"
+            operator           = "IPMatch"
+            negation_condition = "false"
+            match_values       = ["192.30.252.0/22", "185.199.108.0/22", "140.82.112.0/20", "143.55.64.0/20"]
+          }
+          condition2 = {
+            variable_name      = "RequestHeaders"
+            selector           = "X-GitHub-Hook-Installation-Target-ID"
+            operator           = "Equal"
+            negation_condition = "false"
+            match_values       = ["271470"]
+          }
+        }
+      }
+      rule2 = {
+        priority  = "99"
+        rule_type = "MatchRule"
+        action    = "Allow"
+        conditions = {
+          condition1 = {
+            variable_name      = "RemoteAddr"
+            operator           = "IPMatch"
+            negation_condition = "false"
+            match_values       = ["192.30.252.0/22", "185.199.108.0/22", "140.82.112.0/20", "143.55.64.0/20"]
+          }
+          condition2 = {
+            variable_name      = "RequestHeaders"
+            selector           = "X-GitHub-Hook-Installation-Target-ID"
+            operator           = "Equal"
+            negation_condition = "false"
+            match_values       = ["360184"]
+          }
+        }
+      }
+    }
   }
 
   applications = {
     # application app1
     app1 = {
-      hostname  = "app1.com"
-      bepoolips = []
-      priority  = "10000"
-      subject   = "cn=app1.pilot.org"
-      issuer    = "self"
+      hostname                     = "app1.com"
+      bepoolips                    = []
+      priority                     = "10000"
+      subject                      = "cn=app1.pilot.org"
+      issuer                       = "self"
+      probe_path                   = "/"
+      probe_interval               = "30"
+      probe_timeout                = "30"
+      probe_threshold              = "3"
+      probe_pick_host_from_backend = "false"
+      probe_host_value             = "ghshr.demo1.org"
     }
     # application app2
     app2 = {
-      hostname  = "app2.com"
-      bepoolips = []
-      priority  = "20000"
-      subject   = "cn=app2.pilot.org"
-      issuer    = "self"
+      hostname                     = "app2.com"
+      bepoolips                    = []
+      priority                     = "20000"
+      subject                      = "cn=app2.pilot.org"
+      issuer                       = "self"
+      probe_path                   = "/"
+      probe_interval               = "30"
+      probe_timeout                = "30"
+      probe_threshold              = "3"
+      probe_pick_host_from_backend = "false"
+      probe_host_value             = "sxmks.demo2.org"
     }
   }
+}
 }
 ```
 
