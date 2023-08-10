@@ -15,7 +15,58 @@ The below features are made available:
 
 The below examples shows the usage when consuming the module:
 
-## Usage: single agw multiple applications selfsigned certificate
+## Usage: selfsigned certificate
+
+```hcl
+module "agw" {
+  source = "../../"
+
+  workload    = var.workload
+  environment = var.environment
+
+  agw = {
+    location      = module.rg.groups.demo.location
+    resourcegroup = module.rg.groups.demo.name
+    keyvault      = module.kv.vault.id
+    subnet        = module.network.subnets.agw.id
+    config        = var.agw.config
+    applications  = var.agw.applications
+  }
+}
+```
+
+```hcl
+# agw.auto.tfvars
+agw = {
+  config = {
+    waf = {
+      enable = true
+      mode   = "Prevention"
+    }
+    capacity = {
+      min = 1, max = 2
+    }
+  }
+
+  applications = {
+    app1 = {
+      hostname  = "app1.com"
+      bepoolips = []
+      priority  = "10000"
+      subject   = "cn=app1.pilot.org"
+      issuer    = "self"
+    }
+    app2 = {
+      hostname  = "app2.com"
+      bepoolips = []
+      priority  = "20000"
+      subject   = "cn=app2.pilot.org"
+      issuer    = "self"
+    }
+  }
+}
+```
+
 
 ```hcl
 module "agw" {
