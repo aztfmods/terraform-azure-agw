@@ -44,9 +44,8 @@ module "agw" {
 }
 ```
 
-The above configuration is referencing a tfvars file, where additional customization and more detailed configurations can be included.
-
 ```hcl
+#agw.auto.tfvars
 agw = {
   config = {
     waf = {
