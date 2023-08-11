@@ -254,7 +254,7 @@ resource "azurerm_web_application_firewall_policy" "waf_policy" {
   }
 }
 
-# .TODO: decide if we want todo this
+# .TODO: decide what to do
 
 # generate password CA token
 #resource "random_string" "randomca" {
