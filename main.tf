@@ -85,8 +85,8 @@ resource "azurerm_application_gateway" "agw" {
   }
 
   autoscale_configuration {
-    min_capacity = var.agw.config.capacity.min
-    max_capacity = var.agw.config.capacity.max
+    min_capacity = try(var.agw.autoscale.min, 1)
+    max_capacity = try(var.agw.autoscale.max, 2)
   }
 
   identity {
@@ -242,8 +242,8 @@ resource "azurerm_web_application_firewall_policy" "waf_policy" {
   location            = var.agw.location
 
   policy_settings {
-    enabled = var.agw.config.waf.enable
-    mode    = var.agw.config.waf.mode
+    enabled = try(var.agw.waf.enable, true)
+    mode    = try(var.agw.waf.mode, "Prevention")
   }
 
   managed_rules {

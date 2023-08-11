@@ -62,7 +62,10 @@ module "agw" {
     resourcegroup = module.rg.groups.demo.name
     keyvault      = module.kv.vault.id
     subnet        = module.network.subnets.agw.id
-    config        = var.agw.config
-    applications  = var.agw.applications
+
+    applications = {
+      app1 = { hostname = "app1.com", bepoolips = [], priority = "10000", subject = "CN=app1.pilot.org", issuer = "self" }
+      app2 = { hostname = "app2.com", bepoolips = [], priority = "20000", subject = "CN=app2.pilot.org", issuer = "self" }
+    }
   }
 }

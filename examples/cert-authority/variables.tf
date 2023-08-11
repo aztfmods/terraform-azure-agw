@@ -5,7 +5,3 @@ variable "workload" {
 variable "environment" {
   type = string
 }
-
-variable "agw" {
-  type = any
-}

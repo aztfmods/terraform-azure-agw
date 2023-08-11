@@ -24,11 +24,11 @@ A last key goal is to separate logic from configuration in the module, thereby e
 
 The below examples shows the usage when consuming the module:
 
-## Usage: selfsigned certificate and custom waf rules
+## Usage: selfsigned certificates
 
 ```hcl
 module "agw" {
-  source = "../../"
+  source = "github.com/aztfmods/terraform-azure-agw?ref=v1.2.0"
 
   workload    = var.workload
   environment = var.environment
@@ -38,103 +38,99 @@ module "agw" {
     resourcegroup = module.rg.groups.demo.name
     keyvault      = module.kv.vault.id
     subnet        = module.network.subnets.agw.id
-    config        = var.agw.config
-    applications  = var.agw.applications
+
+    applications = {
+      app1 = { hostname = "app1.com", bepoolips = [], priority = "10000", subject = "CN=app1.pilot.org", issuer = "self" }
+      app2 = { hostname = "app2.com", bepoolips = [], priority = "20000", subject = "CN=app2.pilot.org", issuer = "self" }
+    }
   }
 }
 ```
+
+## Usage: rewrite rule set
 
 ```hcl
-#agw.auto.tfvars
-agw = {
-  config = {
-    waf = {
-      enable = true
-      mode   = "Prevention"
-    }
-    capacity = {
-      min = 1, max = 2
-    }
-    custom_rules = {
-      rule1 = {
-        priority  = "100"
-        rule_type = "MatchRule"
-        action    = "Allow"
-        conditions = {
-          condition1 = {
-            variable_name      = "RemoteAddr"
-            operator           = "IPMatch"
-            negation_condition = "false"
-            match_values       = ["192.30.252.0/22", "185.199.108.0/22", "140.82.112.0/20", "143.55.64.0/20"]
-          }
-          condition2 = {
-            variable_name      = "RequestHeaders"
-            selector           = "X-GitHub-Hook-Installation-Target-ID"
-            operator           = "Equal"
-            negation_condition = "false"
-            match_values       = ["271470"]
-          }
-        }
-      }
-      rule2 = {
-        priority  = "99"
-        rule_type = "MatchRule"
-        action    = "Allow"
-        conditions = {
-          condition1 = {
-            variable_name      = "RemoteAddr"
-            operator           = "IPMatch"
-            negation_condition = "false"
-            match_values       = ["192.30.252.0/22", "185.199.108.0/22", "140.82.112.0/20", "143.55.64.0/20"]
-          }
-          condition2 = {
-            variable_name      = "RequestHeaders"
-            selector           = "X-GitHub-Hook-Installation-Target-ID"
-            operator           = "Equal"
-            negation_condition = "false"
-            match_values       = ["360184"]
-          }
-        }
-      }
-    }
-  }
+module "agw" {
+  source = "github.com/aztfmods/terraform-azure-agw?ref=v1.2.0"
 
-  applications = {
-    # application app1
-    app1 = {
-      hostname                     = "app1.com"
-      bepoolips                    = []
-      priority                     = "10000"
-      subject                      = "cn=app1.pilot.org"
-      issuer                       = "self"
-      probe_path                   = "/"
-      probe_interval               = "30"
-      probe_timeout                = "30"
-      probe_threshold              = "3"
-      probe_pick_host_from_backend = "false"
-      probe_host_value             = "ghshr.demo1.org"
-    }
-    # application app2
-    app2 = {
-      hostname                     = "app2.com"
-      bepoolips                    = []
-      priority                     = "20000"
-      subject                      = "cn=app2.pilot.org"
-      issuer                       = "self"
-      probe_path                   = "/"
-      probe_interval               = "30"
-      probe_timeout                = "30"
-      probe_threshold              = "3"
-      probe_pick_host_from_backend = "false"
-      probe_host_value             = "sxmks.demo2.org"
+  workload    = var.workload
+  environment = var.environment
+
+  agw = {
+    location      = module.rg.groups.demo.location
+    resourcegroup = module.rg.groups.demo.name
+    keyvault      = module.kv.vault.id
+    subnet        = module.network.subnets.agw.id
+
+    applications = {
+      app1 = {
+        hostname  = "app1.com"
+        bepoolips = []
+        priority  = "10000"
+        subject   = "cn=app1.pilot.org"
+        issuer    = "self"
+        rewrite_rule_sets = {
+          set1 = {
+            rules = {
+              http_to_https_redirect = {
+                rewriterulename     = "http_to_https_redirect"
+                rewriterulesequence = 100
+                conditions = {
+                  condition1 = {
+                    variable = "var_request_uri"
+                    pattern  = "HTTP"
+                  }
+                }
+                urls = {
+                  url1 = {
+                    path         = "/api/health"
+                    query_string = "verbose=true"
+                  }
+                }
+              }
+              add_custom_request_header = {
+                rewriterulename     = "add_custom_request_header"
+                rewriterulesequence = 200
+                request_header_configurations = {
+                  header1 = {
+                    header_name  = "X-Custom-Header"
+                    header_value = "CustomValue"
+                  }
+                }
+              }
+              add_custom_response_header = {
+                rewriterulename     = "add_custom_response_header"
+                rewriterulesequence = 300
+                response_header_configurations = {
+                  header1 = {
+                    header_name  = "Strict-Transport-Security"
+                    header_value = "max-age=31536000"
+                  }
+                }
+              }
+              modify_request_url = {
+                rewriterulename     = "modify_request_url"
+                rewriterulesequence = 400
+                conditions = {
+                  condition1 = {
+                    variable = "var_request_uri"
+                    pattern  = "/oldpath"
+                  }
+                }
+                urls = {
+                  url1 = {
+                    path = "/newpath"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
-}
 }
 ```
-
-
-## Usage: single agw multiple applications integrated CA
 
 ## Resources
 
@@ -192,6 +188,6 @@ MIT Licensed. See [LICENSE](https://github.com/aztfmods/terraform-azure-kv/blob/
 
 ## References
 
-- [Documentation](https://learn.microsoft.com/en-us/azure/key-vault/)
-- [Rest Api](https://learn.microsoft.com/en-us/rest/api/keyvault/)
-- [Rest Api Specs](https://github.com/Azure/azure-rest-api-specs/tree/1f449b5a17448f05ce1cd914f8ed75a0b568d130/specification/keyvault)
+- [Documentation](https://learn.microsoft.com/en-us/azure/application-gateway/)
+- [Rest Api](https://learn.microsoft.com/en-us/rest/api/application-gateway/)
+- [Rest Api Specs](https://github.com/Azure/azure-rest-api-specs/blob/main/specification/network/resource-manager/Microsoft.Network/stable/2023-04-01/applicationGateway.json)
