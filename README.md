@@ -47,7 +47,7 @@ module "agw" {
 }
 ```
 
-## Usage: rewrite rule set
+## Usage: rewrite rule set and rules
 
 ```hcl
 module "agw" {
